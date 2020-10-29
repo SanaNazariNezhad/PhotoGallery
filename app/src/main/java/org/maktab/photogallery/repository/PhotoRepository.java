@@ -2,6 +2,9 @@ package org.maktab.photogallery.repository;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +42,7 @@ public class PhotoRepository {
 
     private List<GalleryItem> parseJson(JSONObject bodyObject) throws JSONException {
         List<GalleryItem> items = new ArrayList<>();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         JSONObject photosObject = bodyObject.getJSONObject("photos");
         JSONArray photoArray = photosObject.getJSONArray("photo");
@@ -49,11 +53,12 @@ public class PhotoRepository {
             if (!photoObject.has("url_s"))
                 continue;
 
-            String id = photoObject.getString("id");
+            /*String id = photoObject.getString("id");
             String title = photoObject.getString("title");
             String url = photoObject.getString("url_s");
 
-            GalleryItem item = new GalleryItem(id, title, url);
+            GalleryItem item = new GalleryItem(id, title, url);*/
+            GalleryItem item = gson.fromJson(String.valueOf(photoObject),GalleryItem.class);
             items.add(item);
         }
 
