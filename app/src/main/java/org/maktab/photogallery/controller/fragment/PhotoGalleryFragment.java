@@ -11,9 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.maktab.photogallery.R;
+import org.maktab.photogallery.controller.EndlessRecyclerViewScrollListener;
 import org.maktab.photogallery.model.GalleryItem;
 import org.maktab.photogallery.repository.PhotoRepository;
 
@@ -25,6 +27,13 @@ public class PhotoGalleryFragment extends Fragment {
     private static final String TAG = "PGF";
     private RecyclerView mRecyclerView;
     private PhotoRepository mRepository;
+    private String mPage;
+    private int mCount;
+    private ProgressBar mProgressBar;
+    private FlickrTask mFlickrTask;
+
+    private EndlessRecyclerViewScrollListener scrollListener;
+    GridLayoutManager mGridLayoutManager;
 
     public PhotoGalleryFragment() {
         // Required empty public constructor
@@ -42,9 +51,11 @@ public class PhotoGalleryFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mRepository = new PhotoRepository();
+        mCount = 1;
 
-        FlickrTask flickrTask = new FlickrTask();
-        flickrTask.execute();
+
+        /*FlickrTask flickrTask = new FlickrTask();
+        flickrTask.execute();*/
 
         /*Thread thread = new Thread(new Runnable() {
             @Override
@@ -75,9 +86,31 @@ public class PhotoGalleryFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_photo_gallery, container, false);
 
         findViews(view);
+        mProgressBar = view.findViewById(R.id.progress_bar);
+        FlickrTask flickrTask = new FlickrTask();
+        flickrTask.execute();
         initViews();
-
+        scrollListener = new EndlessRecyclerViewScrollListener(mGridLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                loadNextDataFromApi(page);
+            }
+        };
+        mRecyclerView.addOnScrollListener(scrollListener);
         return view;
+    }
+
+    public void loadNextDataFromApi(int offset) {
+        mCount ++;
+        mProgressBar.setVisibility(View.VISIBLE);
+        if (mCount >= 10)
+            mProgressBar.setVisibility(View.GONE);
+        else {
+            FlickrTask flickrTask = new FlickrTask();
+            flickrTask.execute();
+        }
     }
 
     private void findViews(View view) {
@@ -85,7 +118,8 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private void initViews() {
-        mRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), SPAN_COUNT));
+        mGridLayoutManager = new GridLayoutManager(getContext(), SPAN_COUNT);
+        mRecyclerView.setLayoutManager(mGridLayoutManager);
     }
 
     private void setupAdapter(List<GalleryItem> items) {
@@ -146,10 +180,13 @@ public class PhotoGalleryFragment extends Fragment {
 
     private class FlickrTask extends AsyncTask<Void, Void, List<GalleryItem>> {
 
+        @Override protected void onPreExecute() {
+        }
+
         //this method runs on background thread
         @Override
         protected List<GalleryItem> doInBackground(Void... voids) {
-            List<GalleryItem> items = mRepository.fetchItems();
+            List<GalleryItem> items = mRepository.fetchItems(mCount);
             return items;
         }
 
@@ -159,6 +196,7 @@ public class PhotoGalleryFragment extends Fragment {
             super.onPostExecute(items);
 
             setupAdapter(items);
+            mProgressBar.setVisibility(View.GONE);
         }
     }
 }

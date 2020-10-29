@@ -19,14 +19,21 @@ public class PhotoRepository {
 
     private static final String TAG = "PhotoRepository";
     private FlickrFetcher mFetcher;
+    List<GalleryItem> items;
 
     public PhotoRepository() {
         mFetcher = new FlickrFetcher();
+        items = new ArrayList<>();
     }
 
     //this method must run on background thread.
-    public List<GalleryItem> fetchItems() {
-        String url = mFetcher.getRecentUrl();
+    public List<GalleryItem> fetchItems(int page) {
+        String url;
+        if (page == 1) {
+            url = mFetcher.getRecentUrl();
+        }else {
+            url = mFetcher.getRecentUrl(page);
+        }
         try {
             String response = mFetcher.getUrlString(url);
             Log.d(TAG, "response: " + response);
@@ -41,7 +48,7 @@ public class PhotoRepository {
     }
 
     private List<GalleryItem> parseJson(JSONObject bodyObject) throws JSONException {
-        List<GalleryItem> items = new ArrayList<>();
+
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         JSONObject photosObject = bodyObject.getJSONObject("photos");
