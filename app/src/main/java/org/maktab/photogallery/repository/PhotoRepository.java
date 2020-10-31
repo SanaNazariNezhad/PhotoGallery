@@ -19,18 +19,27 @@ public class PhotoRepository {
 
     private static final String TAG = "PhotoRepository";
     private FlickrFetcher mFetcher;
-    List<GalleryItem> items;
+    private List<GalleryItem> mItems;
+
+    public List<GalleryItem> getItems() {
+        return mItems;
+    }
+
+    public void setItems(List<GalleryItem> items) {
+        mItems = items;
+    }
+
 
     public PhotoRepository() {
         mFetcher = new FlickrFetcher();
-        items = new ArrayList<>();
+        mItems = new ArrayList<>();
     }
 
     //this method must run on background thread.
     public List<GalleryItem> fetchItems(int page) {
         String url;
         if (page == 1) {
-            url = mFetcher.getRecentUrl();
+            url = mFetcher.getPopularUrl();
         }else {
             url = mFetcher.getRecentUrl(page);
         }
@@ -66,9 +75,9 @@ public class PhotoRepository {
 
             GalleryItem item = new GalleryItem(id, title, url);*/
             GalleryItem item = gson.fromJson(String.valueOf(photoObject),GalleryItem.class);
-            items.add(item);
+            mItems.add(item);
         }
 
-        return items;
+        return mItems;
     }
 }
