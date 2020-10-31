@@ -27,6 +27,7 @@ import org.maktab.photogallery.repository.PhotoRepository;
 import org.maktab.photogallery.service.ThumbnailDownloader;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoGalleryFragment extends Fragment {
@@ -39,6 +40,8 @@ public class PhotoGalleryFragment extends Fragment {
     private ProgressBar mProgressBar;
     private LruCache<String, Bitmap> memoryCache;
     private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
+    List<GalleryItem> mItems;
+    private int mCurrentItem;
 
     private EndlessRecyclerViewScrollListener scrollListener;
     GridLayoutManager mGridLayoutManager;
@@ -59,7 +62,8 @@ public class PhotoGalleryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int cacheSize = maxMemory / 8;
-
+        mItems = new ArrayList<>();
+        mCurrentItem = 0;
         mRepository = new PhotoRepository();
         mCount = 1;
 
@@ -156,6 +160,7 @@ public class PhotoGalleryFragment extends Fragment {
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
+                mCurrentItem = totalItemsCount;
                 loadNextDataFromApi(page);
             }
         };
@@ -164,7 +169,7 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     public void loadNextDataFromApi(int offset) {
-        mCount ++;
+        mCount = offset;
         mProgressBar.setVisibility(View.VISIBLE);
         if (mCount >= 10)
             mProgressBar.setVisibility(View.GONE);
@@ -186,6 +191,7 @@ public class PhotoGalleryFragment extends Fragment {
     private void setupAdapter(List<GalleryItem> items) {
         PhotoAdapter adapter = new PhotoAdapter(items);
         mRecyclerView.setAdapter(adapter);
+        mRecyclerView.scrollToPosition(mCurrentItem);
     }
 
     private class PhotoHolder extends RecyclerView.ViewHolder {
@@ -202,7 +208,7 @@ public class PhotoGalleryFragment extends Fragment {
         public void bindGalleryItem(GalleryItem item) {
             mItem = item;
             mImageViewItem.setImageDrawable(
-                    getResources().getDrawable(R.mipmap.ic_android_placeholder));
+                    getResources().getDrawable(R.mipmap.ic_placeholder));
 
             //queue the message for download
             mThumbnailDownloader.queueThumbnail(this, item.getUrl());
@@ -275,7 +281,12 @@ public class PhotoGalleryFragment extends Fragment {
         @Override
         protected List<GalleryItem> doInBackground(Void... voids) {
             List<GalleryItem> items = mRepository.fetchItems(mCount);
-            return items;
+
+            for (int index = 0; index <items.size() ; index++) {
+                mItems.add(items.get(index));
+            }
+
+            return mItems;
         }
 
         //this method run on main thread
