@@ -1,6 +1,8 @@
 package org.maktab.photogallery.controller.fragment;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import org.maktab.photogallery.model.GalleryItem;
 import org.maktab.photogallery.repository.PhotoRepository;
 import org.maktab.photogallery.service.ThumbnailDownloader;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class PhotoGalleryFragment extends Fragment {
@@ -33,7 +37,7 @@ public class PhotoGalleryFragment extends Fragment {
     private PhotoRepository mRepository;
     private int mCount;
     private ProgressBar mProgressBar;
-
+    private LruCache<String, Bitmap> memoryCache;
     private ThumbnailDownloader<PhotoHolder> mThumbnailDownloader;
 
     private EndlessRecyclerViewScrollListener scrollListener;
@@ -53,11 +57,22 @@ public class PhotoGalleryFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 8;
 
         mRepository = new PhotoRepository();
         mCount = 1;
 
         setupThumbnailDownloader();
+
+        memoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                return bitmap.getByteCount() / 1024;
+            }
+        };
 
         /*FlickrTask flickrTask = new FlickrTask();
         flickrTask.execute();*/
@@ -97,6 +112,16 @@ public class PhotoGalleryFragment extends Fragment {
                         target.bindBitmap(bitmap);
                     }
                 });
+    }
+
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            memoryCache.put(key, bitmap);
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        return memoryCache.get(key);
     }
 
 
@@ -184,7 +209,21 @@ public class PhotoGalleryFragment extends Fragment {
         }
 
         public void bindBitmap(Bitmap bitmap) {
-            mImageViewItem.setImageBitmap(bitmap);
+            loadBitmap(bitmap.getGenerationId(),mImageViewItem);
+//            mImageViewItem.setImageBitmap(bitmap);
+        }
+
+        public void loadBitmap(int resId, ImageView imageView) {
+            final String imageKey = String.valueOf(resId);
+
+            final Bitmap bitmap = getBitmapFromMemCache(imageKey);
+            if (bitmap != null) {
+                imageView.setImageBitmap(bitmap);
+            } else {
+                imageView.setImageResource(R.mipmap.ic_android_placeholder);
+                BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+                task.execute(resId);
+            }
         }
     }
 
@@ -227,8 +266,6 @@ public class PhotoGalleryFragment extends Fragment {
 
     private class FlickrTask extends AsyncTask<Void, Void, List<GalleryItem>> {
 
-        @Override protected void onPreExecute() {
-        }
 
         //this method runs on background thread
         @Override
@@ -245,5 +282,77 @@ public class PhotoGalleryFragment extends Fragment {
             setupAdapter(items);
             mProgressBar.setVisibility(View.GONE);
         }
+
+    }
+
+    class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
+
+//        private final WeakReference<ImageView> imageViewReference;
+        private ImageView mImageView;
+        private int data = 0;
+        public BitmapWorkerTask(ImageView imageView) {
+            // Use a WeakReference to ensure the ImageView can be garbage collected
+//            imageView = new WeakReference<ImageView>(imageView);
+            mImageView = imageView;
+        }
+
+        // Decode image in background.
+
+        @Override
+        protected Bitmap doInBackground(Integer... params) {
+            final Bitmap bitmap = decodeSampledBitmapFromResource(
+                    getActivity().getResources(), params[0], 100, 100);
+            addBitmapToMemoryCache(String.valueOf(params[0]), bitmap);
+            return bitmap;
+        }
+        // Once complete, see if ImageView is still around and set bitmap.
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (mImageView != null && bitmap != null) {
+                final ImageView imageView = mImageView;
+                if (imageView != null) {
+                    imageView.setImageBitmap(bitmap);
+                }
+            }
+        }
+    }
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+                                                         int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 }

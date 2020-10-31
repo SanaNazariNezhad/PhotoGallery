@@ -88,6 +88,8 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
 
+
+
         mHandlerResponse.post(new Runnable() {
             @Override
             public void run() {
