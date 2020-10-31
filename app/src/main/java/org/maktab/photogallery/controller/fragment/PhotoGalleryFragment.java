@@ -114,7 +114,7 @@ public class PhotoGalleryFragment extends Fragment {
                 });
     }
 
-    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+    /*public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
         if (getBitmapFromMemCache(key) == null) {
             memoryCache.put(key, bitmap);
         }
@@ -122,7 +122,7 @@ public class PhotoGalleryFragment extends Fragment {
 
     public Bitmap getBitmapFromMemCache(String key) {
         return memoryCache.get(key);
-    }
+    }*/
 
 
     @Override
@@ -209,11 +209,15 @@ public class PhotoGalleryFragment extends Fragment {
         }
 
         public void bindBitmap(Bitmap bitmap) {
-            loadBitmap(bitmap.getGenerationId(),mImageViewItem);
-//            mImageViewItem.setImageBitmap(bitmap);
+//            loadBitmap(bitmap.getGenerationId(),mImageViewItem);
+            Bitmap mBitmap = MyCache.getInstance().retrieveBitmapFromCache(ThumbnailDownloader.BITMAP_KEY);
+            if (mBitmap != null)
+                mImageViewItem.setImageBitmap(mBitmap);
+            else
+                mImageViewItem.setImageBitmap(bitmap);
         }
 
-        public void loadBitmap(int resId, ImageView imageView) {
+       /* public void loadBitmap(int resId, ImageView imageView) {
             final String imageKey = String.valueOf(resId);
 
             final Bitmap bitmap = getBitmapFromMemCache(imageKey);
@@ -224,7 +228,7 @@ public class PhotoGalleryFragment extends Fragment {
                 BitmapWorkerTask task = new BitmapWorkerTask(imageView);
                 task.execute(resId);
             }
-        }
+        }*/
     }
 
     private class PhotoAdapter extends RecyclerView.Adapter<PhotoHolder> {
@@ -285,7 +289,7 @@ public class PhotoGalleryFragment extends Fragment {
 
     }
 
-    class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
+   /* class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 
 //        private final WeakReference<ImageView> imageViewReference;
         private ImageView mImageView;
@@ -317,6 +321,7 @@ public class PhotoGalleryFragment extends Fragment {
             }
         }
     }
+
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
 
@@ -354,5 +359,5 @@ public class PhotoGalleryFragment extends Fragment {
         }
 
         return inSampleSize;
-    }
+    }*/
 }

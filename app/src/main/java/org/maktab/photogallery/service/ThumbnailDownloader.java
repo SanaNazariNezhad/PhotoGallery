@@ -9,7 +9,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import org.maktab.photogallery.controller.fragment.PhotoGalleryFragment;
+import org.maktab.photogallery.controller.fragment.MyCache;
 import org.maktab.photogallery.network.FlickrFetcher;
 
 import java.io.IOException;
@@ -19,6 +19,7 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
     public static final String TAG = "ThumbnailDownloader";
     private static final int WHAT_THUMBNAIL_DOWNLOAD = 1;
+    public static final String BITMAP_KEY = "bitmap_key";
 
     private Handler mHandlerRequest;
     private Handler mHandlerResponse;
@@ -88,7 +89,7 @@ public class ThumbnailDownloader<T> extends HandlerThread {
 
         Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
 
-
+        MyCache.getInstance().saveBitmapToCache(BITMAP_KEY,bitmap);
 
         mHandlerResponse.post(new Runnable() {
             @Override
