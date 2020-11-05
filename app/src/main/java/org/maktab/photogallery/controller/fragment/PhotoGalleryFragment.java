@@ -125,11 +125,6 @@ public class PhotoGalleryFragment extends Fragment {
                     .centerCrop() //4
                     .placeholder(R.mipmap.ic_android_placeholder) //5
                     .into(mImageViewItem); //8
-
-            /*Picasso.get()
-                    .load(item.getUrl())
-                    .placeholder(R.mipmap.ic_android_placeholder)
-                    .into(mImageViewItem);*/
         }
     }
 
