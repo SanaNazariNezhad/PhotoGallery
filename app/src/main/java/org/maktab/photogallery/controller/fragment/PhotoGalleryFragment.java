@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import org.maktab.photogallery.R;
@@ -33,7 +34,6 @@ public class PhotoGalleryFragment extends Fragment {
     private ProgressBar mProgressBar;
     List<GalleryItem> mItems;
     private int mCurrentItem;
-
     private EndlessRecyclerViewScrollListener scrollListener;
     GridLayoutManager mGridLayoutManager;
 
@@ -120,10 +120,16 @@ public class PhotoGalleryFragment extends Fragment {
 
         public void bindGalleryItem(GalleryItem item) {
 
-            Picasso.get()
+            Glide.with(itemView)  //2
+                    .load(item.getUrl()) //3
+                    .centerCrop() //4
+                    .placeholder(R.mipmap.ic_android_placeholder) //5
+                    .into(mImageViewItem); //8
+
+            /*Picasso.get()
                     .load(item.getUrl())
                     .placeholder(R.mipmap.ic_android_placeholder)
-                    .into(mImageViewItem);
+                    .into(mImageViewItem);*/
         }
     }
 
