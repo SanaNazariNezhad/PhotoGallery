@@ -1,26 +1,24 @@
-package org.maktab.photogallery.controller.fragment;
+package org.maktab.photogallery.view.fragment;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.bumptech.glide.Glide;
-import com.squareup.picasso.Picasso;
 
 import org.maktab.photogallery.R;
-import org.maktab.photogallery.controller.EndlessRecyclerViewScrollListener;
+import org.maktab.photogallery.adaptert.PhotoAdapter;
+import org.maktab.photogallery.view.EndlessRecyclerViewScrollListener;
 import org.maktab.photogallery.model.GalleryItem;
-import org.maktab.photogallery.repository.PhotoRepository;
+import org.maktab.photogallery.viewmodel.PhotoGalleryViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +27,13 @@ public class PhotoGalleryFragment extends Fragment {
 
     private static final int SPAN_COUNT = 3;
     private RecyclerView mRecyclerView;
-    private PhotoRepository mRepository;
     private int mCount;
     private ProgressBar mProgressBar;
     List<GalleryItem> mItems;
     private int mCurrentItem;
     private EndlessRecyclerViewScrollListener scrollListener;
     GridLayoutManager mGridLayoutManager;
+    private PhotoGalleryViewModel mViewModel;
 
     public PhotoGalleryFragment() {
         // Required empty public constructor
@@ -53,19 +51,27 @@ public class PhotoGalleryFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mItems = new ArrayList<>();
         mCurrentItem = 0;
-        mRepository = new PhotoRepository();
         mCount = 1;
-        fetchItemFromRepository();
+        mViewModel = new ViewModelProvider(this).get(PhotoGalleryViewModel.class);
+
+        mViewModel.fetchPopularItemsAsync();
+        mViewModel.getPopularItemsLiveData().observe(this, new Observer<List<GalleryItem>>() {
+            @Override
+            public void onChanged(List<GalleryItem> items) {
+                setupAdapter(items);
+            }
+        });
+//        fetchItemFromRepository();
     }
 
-    private void fetchItemFromRepository() {
+    /*private void fetchItemFromRepository() {
         mRepository.fetchItemsAsync(new PhotoRepository.Callbacks() {
             @Override
             public void onItemResponse(List<GalleryItem> items) {
                 setupAdapter(items);
             }
         });
-    }
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -110,67 +116,9 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private void setupAdapter(List<GalleryItem> items) {
-        PhotoAdapter adapter = new PhotoAdapter(items);
+        PhotoAdapter adapter = new PhotoAdapter(getContext(),items);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.scrollToPosition(mCurrentItem);
-    }
-
-    private class PhotoHolder extends RecyclerView.ViewHolder {
-
-        private ImageView mImageViewItem;
-
-
-        public PhotoHolder(@NonNull View itemView) {
-            super(itemView);
-
-            mImageViewItem = itemView.findViewById(R.id.item_image_view);
-        }
-
-        public void bindGalleryItem(GalleryItem item) {
-
-            Glide.with(itemView)  //2
-                    .load(item.getUrl()) //3
-                    .centerCrop() //4
-                    .placeholder(R.mipmap.ic_android_placeholder) //5
-                    .into(mImageViewItem); //8
-        }
-    }
-
-    private class PhotoAdapter extends RecyclerView.Adapter<PhotoHolder> {
-
-        private List<GalleryItem> mItems;
-
-        public List<GalleryItem> getItems() {
-            return mItems;
-        }
-
-        public void setItems(List<GalleryItem> items) {
-            mItems = items;
-        }
-
-        public PhotoAdapter(List<GalleryItem> items) {
-            mItems = items;
-        }
-
-        @NonNull
-        @Override
-        public PhotoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(getContext()).inflate(
-                    R.layout.list_item_photo_gallery,
-                    parent,
-                    false);
-            return new PhotoHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull PhotoHolder holder, int position) {
-            holder.bindGalleryItem(mItems.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return mItems.size();
-        }
     }
 
 /*    private class FlickrTask extends AsyncTask<Void, Void, List<GalleryItem>> {

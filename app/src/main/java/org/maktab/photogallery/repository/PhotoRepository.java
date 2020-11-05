@@ -2,6 +2,8 @@ package org.maktab.photogallery.repository;
 
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -9,7 +11,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.maktab.photogallery.model.GalleryItem;
-import org.maktab.photogallery.network.FlickrFetcher;
 import org.maktab.photogallery.network.NetworkParams;
 import org.maktab.photogallery.network.retrofit.FlickrService;
 import org.maktab.photogallery.network.retrofit.RetrofitInstance;
@@ -27,6 +28,11 @@ public class PhotoRepository {
 
     private static final String TAG = "PhotoRepository";
     private FlickrService mFlickrService;
+    private MutableLiveData<List<GalleryItem>> mPopularItemsLiveData = new MutableLiveData<>();
+
+    public MutableLiveData<List<GalleryItem>> getPopularItemsLiveData() {
+        return mPopularItemsLiveData;
+    }
 
 
     public PhotoRepository() {
@@ -47,14 +53,17 @@ public class PhotoRepository {
     }
 
     //this method can be run in any thread.
-    public void fetchItemsAsync(Callbacks callBacks) {
+    public void fetchItemsAsync() {
         Call<List<GalleryItem>> call = mFlickrService.listItems(NetworkParams.POPULAR_OPTIONS);
         call.enqueue(new Callback<List<GalleryItem>>() {
+
+            //this run on main thread
             @Override
             public void onResponse(Call<List<GalleryItem>> call, Response<List<GalleryItem>> response) {
                 List<GalleryItem> items = response.body();
+
                 //update adapter of recyclerview
-                callBacks.onItemResponse(items);
+                mPopularItemsLiveData.setValue(items);
             }
 
             @Override
@@ -62,9 +71,5 @@ public class PhotoRepository {
                 Log.e(TAG, t.getMessage(), t);
             }
         });
-    }
-
-    public interface Callbacks {
-        void onItemResponse(List<GalleryItem> items);
     }
 }
