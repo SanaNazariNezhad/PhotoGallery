@@ -55,6 +55,16 @@ public class PhotoGalleryFragment extends Fragment {
         mCurrentItem = 0;
         mRepository = new PhotoRepository();
         mCount = 1;
+        fetchItemFromRepository();
+    }
+
+    private void fetchItemFromRepository() {
+        mRepository.fetchItemsAsync(new PhotoRepository.Callbacks() {
+            @Override
+            public void onItemResponse(List<GalleryItem> items) {
+                setupAdapter(items);
+            }
+        });
     }
 
     @Override
@@ -65,8 +75,6 @@ public class PhotoGalleryFragment extends Fragment {
 
         findViews(view);
         mProgressBar = view.findViewById(R.id.progress_bar);
-        FlickrTask flickrTask = new FlickrTask();
-        flickrTask.execute();
         initViews();
         scrollListener = new EndlessRecyclerViewScrollListener(mGridLayoutManager) {
             @Override
@@ -82,14 +90,14 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     public void loadNextDataFromApi(int offset) {
-        mCount = offset;
+        /*mCount = offset;
         mProgressBar.setVisibility(View.VISIBLE);
         if (mCount >= 10)
             mProgressBar.setVisibility(View.GONE);
         else {
-            FlickrTask flickrTask = new FlickrTask();
-            flickrTask.execute();
-        }
+            fetchItemFromRepository();
+            mProgressBar.setVisibility(View.GONE);
+        }*/
     }
 
     private void findViews(View view) {
@@ -164,7 +172,7 @@ public class PhotoGalleryFragment extends Fragment {
         }
     }
 
-    private class FlickrTask extends AsyncTask<Void, Void, List<GalleryItem>> {
+/*    private class FlickrTask extends AsyncTask<Void, Void, List<GalleryItem>> {
 
 
         //this method runs on background thread
@@ -188,5 +196,5 @@ public class PhotoGalleryFragment extends Fragment {
             mProgressBar.setVisibility(View.GONE);
         }
 
-    }
+    }*/
 }
