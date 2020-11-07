@@ -2,13 +2,20 @@ package org.maktab.photogallery.repository;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.maktab.photogallery.model.GalleryItem;
+import org.maktab.photogallery.network.FlickrFetcher;
 import org.maktab.photogallery.network.NetworkParams;
 import org.maktab.photogallery.network.retrofit.FlickrService;
 import org.maktab.photogallery.network.retrofit.RetrofitInstance;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;

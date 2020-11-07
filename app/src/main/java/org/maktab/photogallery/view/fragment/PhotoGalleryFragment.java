@@ -173,4 +173,29 @@ public class PhotoGalleryFragment extends Fragment {
         }
     }
 
+/*    private class FlickrTask extends AsyncTask<Void, Void, List<GalleryItem>> {
+
+
+        //this method runs on background thread
+        @Override
+        protected List<GalleryItem> doInBackground(Void... voids) {
+            List<GalleryItem> items = mRepository.fetchItems(mCount);
+
+            for (int index = 0; index <items.size() ; index++) {
+                mItems.add(items.get(index));
+            }
+
+            return mItems;
+        }
+
+        //this method run on main thread
+        @Override
+        protected void onPostExecute(List<GalleryItem> items) {
+            super.onPostExecute(items);
+
+            setupAdapter(items);
+            mProgressBar.setVisibility(View.GONE);
+        }
+
+    }*/
 }
