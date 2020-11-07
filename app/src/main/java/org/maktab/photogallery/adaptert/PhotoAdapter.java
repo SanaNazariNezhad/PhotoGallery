@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
 
 import org.maktab.photogallery.R;
@@ -69,9 +70,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
         }
 
         public void bindGalleryItem(GalleryItem item) {
-            Picasso.get()
+            Glide.with(itemView)
                     .load(item.getUrl())
-                    .placeholder(R.mipmap.ic_android_placeholder)
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_placeholder)
                     .into(mBinding.itemImageView);
         }
     }
