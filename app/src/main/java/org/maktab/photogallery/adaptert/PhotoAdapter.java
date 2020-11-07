@@ -7,11 +7,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
 import org.maktab.photogallery.R;
+import org.maktab.photogallery.databinding.ListItemPhotoGalleryBinding;
 import org.maktab.photogallery.model.GalleryItem;
 
 import java.util.List;
@@ -37,11 +39,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
     @NonNull
     @Override
     public PhotoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(
-                R.layout.list_item_photo_gallery,
-                parent,
-                false);
-        return new PhotoHolder(view);
+        ListItemPhotoGalleryBinding binding =
+                DataBindingUtil.inflate(
+                        LayoutInflater.from(mContext),
+                        R.layout.list_item_photo_gallery,
+                        parent,
+                        false);
+        return new PhotoHolder(binding);
     }
 
     @Override
@@ -56,19 +60,19 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
 
     class PhotoHolder extends RecyclerView.ViewHolder {
 
-        private ImageView mImageViewItem;
+        private ListItemPhotoGalleryBinding mBinding;
 
-        public PhotoHolder(@NonNull View itemView) {
-            super(itemView);
+        public PhotoHolder(ListItemPhotoGalleryBinding binding) {
+            super(binding.getRoot());
 
-            mImageViewItem = itemView.findViewById(R.id.item_image_view);
+            mBinding = binding;
         }
 
         public void bindGalleryItem(GalleryItem item) {
             Picasso.get()
                     .load(item.getUrl())
                     .placeholder(R.mipmap.ic_android_placeholder)
-                    .into(mImageViewItem);
+                    .into(mBinding.itemImageView);
         }
     }
 }
