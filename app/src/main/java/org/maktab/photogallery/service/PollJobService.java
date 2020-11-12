@@ -113,8 +113,8 @@ public class PollJobService extends JobService {
             jobScheduler.schedule(myJobInfo);
         } else {
             Log.d(TAG, "schedule Off");
-            jobScheduler.cancelAll();
-            jobScheduler = null;
+            /*jobScheduler.cancelAll();
+            jobScheduler = null;*/
         }
     }
 
