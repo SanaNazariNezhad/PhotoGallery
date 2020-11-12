@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.SystemClock;
@@ -120,7 +121,7 @@ public class PollService extends IntentService {
     }
 
     private void createAndShowNotification() {
-        AssetManager assetManager = getAssets();
+        /*AssetManager assetManager = getAssets();
         Uri notficationSound = Uri.parse("file:///android_asset/notification/got_it_done.mp3");
         try {
             String[] fileNames = assetManager.list(NOTIFICATION);
@@ -128,7 +129,7 @@ public class PollService extends IntentService {
 
                 String assetPath = NOTIFICATION + File.separator + fileNames[i];
                 notficationSound = Uri.parse(assetPath);
-            }
+            }*/
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -142,17 +143,17 @@ public class PollService extends IntentService {
                 .setSmallIcon(android.R.drawable.ic_menu_report_image)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setSound(notficationSound)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
                 .setVibrate(new long[]{1000,1000,1000,1000,1000})
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build();
 
         NotificationManagerCompat notificationManagerCompat =
                 NotificationManagerCompat.from(this);
         notificationManagerCompat.notify(1, notification);
 
-        } catch (IOException e) {
+        /*} catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }
