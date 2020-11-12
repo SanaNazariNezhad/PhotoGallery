@@ -7,8 +7,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import org.maktab.photogallery.model.GalleryItem;
-import org.maktab.photogallery.repository.PhotoRepository;
+import org.maktab.photogallery.data.model.GalleryItem;
+import org.maktab.photogallery.data.repository.PhotoRepository;
+import org.maktab.photogallery.service.PollService;
 import org.maktab.photogallery.utils.QueryPreferences;
 
 import java.util.List;
@@ -58,5 +59,13 @@ public class PhotoGalleryViewModel extends AndroidViewModel {
 
     public String getQueryFromPreferences() {
         return QueryPreferences.getSearchQuery(getApplication());
+    }
+    public void togglePolling() {
+        boolean isOn = PollService.isAlarmSet(getApplication());
+        PollService.scheduleAlarm(getApplication(), !isOn);
+    }
+
+    public boolean isAlarmScheduled() {
+        return PollService.isAlarmSet(getApplication());
     }
 }

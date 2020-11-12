@@ -1,13 +1,13 @@
-package org.maktab.photogallery.repository;
+package org.maktab.photogallery.data.repository;
 
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
-import org.maktab.photogallery.model.GalleryItem;
-import org.maktab.photogallery.network.NetworkParams;
-import org.maktab.photogallery.network.retrofit.FlickrService;
-import org.maktab.photogallery.network.retrofit.RetrofitInstance;
+import org.maktab.photogallery.data.model.GalleryItem;
+import org.maktab.photogallery.data.remote.NetworkParams;
+import org.maktab.photogallery.data.remote.retrofit.FlickrService;
+import org.maktab.photogallery.data.remote.retrofit.RetrofitInstance;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,7 +39,7 @@ public class PhotoRepository {
     }
 
     //this method must run on background thread.
-    public List<GalleryItem> fetchItems() {
+    public List<GalleryItem> fetchPopularItems() {
         Call<List<GalleryItem>> call = mFlickrService.listItems(NetworkParams.getPopularOptions());
         try {
             Response<List<GalleryItem>> response = call.execute();
@@ -72,6 +72,18 @@ public class PhotoRepository {
                 Log.e(TAG, t.getMessage(), t);
             }
         });
+    }
+
+    //this method must run on background thread.
+    public List<GalleryItem> fetchSearchItems(String query) {
+        Call<List<GalleryItem>> call = mFlickrService.listItems(NetworkParams.getSearchOptions(query));
+        try {
+            Response<List<GalleryItem>> response = call.execute();
+            return response.body();
+        } catch (IOException e) {
+            Log.e(TAG, e.getMessage(), e);
+            return null;
+        }
     }
 
     public void fetchSearchItemsAsync(String query) {
