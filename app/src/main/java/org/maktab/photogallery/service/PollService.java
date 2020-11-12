@@ -6,7 +6,9 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -19,12 +21,15 @@ import org.maktab.photogallery.data.repository.PhotoRepository;
 import org.maktab.photogallery.utils.QueryPreferences;
 import org.maktab.photogallery.view.activity.PhotoGalleryActivity;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PollService extends IntentService {
 
     private static final String TAG = "PollService";
+    public static final String NOTIFICATION = "notification";
 
     public static Intent newIntent(Context context) {
         return new Intent(context, PollService.class);
@@ -115,6 +120,15 @@ public class PollService extends IntentService {
     }
 
     private void createAndShowNotification() {
+        AssetManager assetManager = getAssets();
+        Uri notficationSound = Uri.parse("file:///android_asset/notification/got_it_done.mp3");
+        try {
+            String[] fileNames = assetManager.list(NOTIFICATION);
+            for (int i = 0; i <fileNames.length ; i++) {
+
+                String assetPath = NOTIFICATION + File.separator + fileNames[i];
+                notficationSound = Uri.parse(assetPath);
+            }
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -128,10 +142,17 @@ public class PollService extends IntentService {
                 .setSmallIcon(android.R.drawable.ic_menu_report_image)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSound(notficationSound)
+                .setVibrate(new long[]{1000,1000,1000,1000,1000})
                 .build();
 
         NotificationManagerCompat notificationManagerCompat =
                 NotificationManagerCompat.from(this);
         notificationManagerCompat.notify(1, notification);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
