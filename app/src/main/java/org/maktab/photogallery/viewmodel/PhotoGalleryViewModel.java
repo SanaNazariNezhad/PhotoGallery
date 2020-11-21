@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.data.remote.NetworkParams;
 import org.maktab.photogallery.data.repository.PhotoRepository;
+import org.maktab.photogallery.service.PollService;
 import org.maktab.photogallery.utils.QueryPreferences;
 import org.maktab.photogallery.view.activity.PhotoPageActivity;
 import org.maktab.photogallery.work.PollWorker;
@@ -68,12 +69,13 @@ public class PhotoGalleryViewModel extends AndroidViewModel {
         return QueryPreferences.getSearchQuery(getApplication());
     }
     public void togglePolling() {
-        boolean isOn = PollWorker.isWorkEnqueued(getApplication());
-        PollWorker.enqueueWork(getApplication(), !isOn);
+        boolean isOn = PollService.isAlarmSet(getApplication());
+        PollService.scheduleAlarm(getApplication(), !isOn);
+
     }
 
     public boolean isTaskScheduled() {
-        return PollWorker.isWorkEnqueued(getApplication());
+        return PollService.isAlarmSet(getApplication());
     }
 
     public List<GalleryItem> getCurrentItems() {
