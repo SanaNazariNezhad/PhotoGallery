@@ -9,6 +9,8 @@ public class GalleryItem {
     private String mTitle;
     @SerializedName("url_s")
     private String mUrl;
+    @SerializedName("owner")
+    private String mOwner;
 
     public String getId() {
         return mId;
@@ -34,12 +36,22 @@ public class GalleryItem {
         mUrl = url;
     }
 
+    public String getOwner() {
+        return mOwner;
+    }
+
+    public void setOwner(String owner) {
+        mOwner = owner;
+    }
+
+
     public GalleryItem() {
     }
 
-    public GalleryItem(String id, String title, String url) {
+    public GalleryItem(String id, String title, String url, String owner) {
         mId = id;
         mTitle = title;
         mUrl = url;
+        mOwner = owner;
     }
 }

@@ -20,6 +20,7 @@ import org.maktab.photogallery.R;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.data.repository.PhotoRepository;
 import org.maktab.photogallery.utils.QueryPreferences;
+import org.maktab.photogallery.utils.ServicesUtils;
 import org.maktab.photogallery.view.activity.PhotoGalleryActivity;
 
 import java.io.File;
@@ -47,31 +48,7 @@ public class PollService extends IntentService {
             Log.d(TAG, "Network not available");
             return;
         }
-
-        String query = QueryPreferences.getSearchQuery(this);
-
-        PhotoRepository repository = new PhotoRepository();
-        List<GalleryItem> items;
-        if (query == null)
-            items = repository.fetchPopularItems();
-        else
-            items = repository.fetchSearchItems(query);
-
-        if (items == null || items.size() == 0) {
-            Log.d(TAG, "Items from server not fetched");
-            return;
-        }
-
-        String serverId = items.get(0).getId();
-        String lastSavedId = QueryPreferences.getLastId(this);
-        if (!serverId.equals(lastSavedId)) {
-            Log.d(TAG, "show notification");
-            createAndShowNotification();
-        } else {
-            Log.d(TAG, "do nothing");
-        }
-
-        QueryPreferences.setLastId(this, serverId);
+        ServicesUtils.pollAndShowNotification(this, TAG);
     }
 
     private boolean isNetworkAvailableAndConnected() {
@@ -156,4 +133,5 @@ public class PollService extends IntentService {
             e.printStackTrace();
         }*/
     }
+
 }

@@ -16,25 +16,16 @@ import com.squareup.picasso.Picasso;
 import org.maktab.photogallery.R;
 import org.maktab.photogallery.databinding.ListItemPhotoGalleryBinding;
 import org.maktab.photogallery.data.model.GalleryItem;
+import org.maktab.photogallery.viewmodel.PhotoGalleryViewModel;
 
 import java.util.List;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder> {
 
-    private Context mContext;
-    private List<GalleryItem> mItems;
+    private final PhotoGalleryViewModel mViewModel;
 
-    public List<GalleryItem> getItems() {
-        return mItems;
-    }
-
-    public void setItems(List<GalleryItem> items) {
-        mItems = items;
-    }
-
-    public PhotoAdapter(Context context, List<GalleryItem> items) {
-        mContext = context;
-        mItems = items;
+    public PhotoAdapter(PhotoGalleryViewModel viewModel) {
+        mViewModel = viewModel;
     }
 
     @NonNull
@@ -42,7 +33,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
     public PhotoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ListItemPhotoGalleryBinding binding =
                 DataBindingUtil.inflate(
-                        LayoutInflater.from(mContext),
+                        LayoutInflater.from(mViewModel.getApplication()),
                         R.layout.list_item_photo_gallery,
                         parent,
                         false);
@@ -51,12 +42,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
 
     @Override
     public void onBindViewHolder(@NonNull PhotoHolder holder, int position) {
-        holder.bindGalleryItem(mItems.get(position));
+        GalleryItem item = mViewModel.getCurrentItems().get(position);
+        holder.bindGalleryItem(item, position);
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mViewModel.getCurrentItems().size();
     }
 
     class PhotoHolder extends RecyclerView.ViewHolder {
@@ -67,9 +59,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoHolder>
             super(binding.getRoot());
 
             mBinding = binding;
+
+            mBinding.setViewModel(mViewModel);
         }
 
-        public void bindGalleryItem(GalleryItem item) {
+        public void bindGalleryItem(GalleryItem item, int position) {
+            mBinding.setPosition(position);
+
             Glide.with(itemView)
                     .load(item.getUrl())
                     .centerCrop()

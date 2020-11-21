@@ -122,7 +122,7 @@ public class PhotoGalleryFragment extends Fragment {
         setSearchViewListeners(searchView);
 
         MenuItem togglePollingItem = menu.findItem(R.id.menu_item_poll_toggling);
-        if (mViewModel.isAlarmScheduled()) {
+        if (mViewModel.isTaskScheduled()) {
             togglePollingItem.setTitle(R.string.stop_polling);
         } else {
             togglePollingItem.setTitle(R.string.start_polling);
@@ -191,7 +191,7 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private void setupAdapter(List<GalleryItem> items) {
-        PhotoAdapter adapter = new PhotoAdapter(getContext(), items);
+        PhotoAdapter adapter = new PhotoAdapter(mViewModel);
         mBinding.recyclerViewPhotoGallery.setAdapter(adapter);
         mBinding.recyclerViewPhotoGallery.scrollToPosition(mCurrentItem);
     }

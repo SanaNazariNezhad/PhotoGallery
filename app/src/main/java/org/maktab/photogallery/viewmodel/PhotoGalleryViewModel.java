@@ -1,6 +1,10 @@
 package org.maktab.photogallery.viewmodel;
 
 import android.app.Application;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -8,13 +12,19 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import org.maktab.photogallery.data.model.GalleryItem;
+import org.maktab.photogallery.data.remote.NetworkParams;
 import org.maktab.photogallery.data.repository.PhotoRepository;
+import org.maktab.photogallery.service.PollJobService;
 import org.maktab.photogallery.service.PollService;
 import org.maktab.photogallery.utils.QueryPreferences;
+import org.maktab.photogallery.work.PollWorker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoGalleryViewModel extends AndroidViewModel {
+
+    private static final String TAG = "PhotoGalleryViewModel";
 
     private final PhotoRepository mRepository;
     private final LiveData<List<GalleryItem>> mPopularItemsLiveData;
@@ -61,11 +71,34 @@ public class PhotoGalleryViewModel extends AndroidViewModel {
         return QueryPreferences.getSearchQuery(getApplication());
     }
     public void togglePolling() {
-        boolean isOn = PollService.isAlarmSet(getApplication());
-        PollService.scheduleAlarm(getApplication(), !isOn);
+        boolean isOn = PollWorker.isWorkEnqueued(getApplication());
+        PollWorker.enqueueWork(getApplication(), !isOn);
     }
 
-    public boolean isAlarmScheduled() {
-        return PollService.isAlarmSet(getApplication());
+    public boolean isTaskScheduled() {
+        return PollWorker.isWorkEnqueued(getApplication());
     }
+
+    public List<GalleryItem> getCurrentItems() {
+        String query = QueryPreferences.getSearchQuery(getApplication());
+        if (query != null && mSearchItemsLiveData.getValue() != null) {
+            return mSearchItemsLiveData.getValue();
+        } else if (query == null && mPopularItemsLiveData.getValue() != null) {
+            return mPopularItemsLiveData.getValue();
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public void onImageClicked(int position) {
+        GalleryItem item = getCurrentItems().get(position);
+        Uri photoPageUri = NetworkParams.getPhotoPageUri(item);
+        Log.d(TAG, photoPageUri.toString());
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, photoPageUri);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getApplication().startActivity(intent);
+    }
+
+
 }

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
-
     <data>
+        <variable
+            name="viewModel"
+            type="org.maktab.photogallery.viewmodel.PhotoGalleryViewModel" />
 
+        <variable
+            name="position"
+            type="Integer" />
     </data>
 
     <ImageView
@@ -10,7 +15,8 @@
         android:layout_height="120dp"
         android:id="@+id/item_image_view"
         android:scaleType="centerCrop"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:onClick="@{() -> viewModel.onImageClicked(position)}">
 
     </ImageView>
 </layout>
