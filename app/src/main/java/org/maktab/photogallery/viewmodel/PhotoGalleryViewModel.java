@@ -3,19 +3,15 @@ package org.maktab.photogallery.viewmodel;
 import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModel;
 
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.data.remote.NetworkParams;
 import org.maktab.photogallery.data.repository.PhotoRepository;
-import org.maktab.photogallery.service.PollJobService;
-import org.maktab.photogallery.service.PollService;
 import org.maktab.photogallery.utils.QueryPreferences;
 import org.maktab.photogallery.work.PollWorker;
 
