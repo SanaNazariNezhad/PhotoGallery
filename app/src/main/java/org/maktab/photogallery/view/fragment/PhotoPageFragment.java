@@ -2,6 +2,7 @@ package org.maktab.photogallery.view.fragment;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,25 @@ public class PhotoPageFragment extends Fragment {
             }
         });
         mBinding.webViewPhotoPage.loadUrl(mPhotoPageUri.toString());
+
+        mBinding.webViewPhotoPage.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (keyCode) {
+                        case KeyEvent.KEYCODE_BACK:
+                            if (mBinding.webViewPhotoPage.canGoBack()) {
+                                mBinding.webViewPhotoPage.goBack();
+                            } else {
+                                getActivity().finish();
+                            }
+                            return true;
+                    }
+
+                }
+                return false;
+            }
+        });
 
         return mBinding.getRoot();
     }
