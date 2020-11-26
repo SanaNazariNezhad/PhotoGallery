@@ -9,9 +9,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.core.app.NotificationManagerCompat;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.maktab.photogallery.event.NotificationEvent;
+
 public class PhotoGalleryApplication extends Application {
 
     private static final String TAG = "PhotoGalleryApplication";
+    public static final String TAG_EVENT_BUS = "PGEventBus";
 
     @Override
     public void onCreate() {
@@ -19,6 +27,15 @@ public class PhotoGalleryApplication extends Application {
 
         Log.d(TAG, "onCreate");
         createNotificationChannel();
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+
+        EventBus.getDefault().unregister(this);
     }
 
     private void createNotificationChannel() {
@@ -37,5 +54,18 @@ public class PhotoGalleryApplication extends Application {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 1)
+    public void onNotificationEventListener(NotificationEvent notificationEvent) {
+        String msg = "Application received the notification event";
+        Log.d(TAG_EVENT_BUS, msg);
+
+        NotificationManagerCompat notificationManagerCompat =
+                NotificationManagerCompat.from(this);
+        notificationManagerCompat.notify(
+                notificationEvent.getNotificationId(),
+                notificationEvent.getNotification());
     }
 }

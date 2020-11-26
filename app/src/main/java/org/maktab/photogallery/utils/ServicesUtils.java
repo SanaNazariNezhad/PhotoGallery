@@ -11,9 +11,11 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import org.greenrobot.eventbus.EventBus;
 import org.maktab.photogallery.R;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.data.repository.PhotoRepository;
+import org.maktab.photogallery.event.NotificationEvent;
 import org.maktab.photogallery.view.activity.PhotoGalleryActivity;
 
 import java.util.List;
@@ -96,7 +98,11 @@ public class ServicesUtils {
                 .setAutoCancel(true)
                 .build();
 
-        Intent intent = new Intent(ACTION_PRIVATE_NOTIFICATION);
+        NotificationEvent notificationEvent = new NotificationEvent(NOTIFICATION_ID, notification);
+        EventBus.getDefault().post(notificationEvent);
+
+
+        /*Intent intent = new Intent(ACTION_PRIVATE_NOTIFICATION);
         intent.putExtra(EXTRA_NOTIFICATION_ID, NOTIFICATION_ID);
         intent.putExtra(EXTRA_NOTIFICATION, notification);
         context.sendOrderedBroadcast(
@@ -106,7 +112,7 @@ public class ServicesUtils {
                 null,
                 Activity.RESULT_OK,
                 null,
-                null);
+                null);*/
     }
 
 }
