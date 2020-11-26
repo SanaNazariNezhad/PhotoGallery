@@ -1,5 +1,6 @@
 package org.maktab.photogallery.view.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,9 +20,11 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 
+import org.maktab.photogallery.PhotoGalleryApplication;
 import org.maktab.photogallery.R;
 import org.maktab.photogallery.adaptert.PhotoAdapter;
 import org.maktab.photogallery.databinding.FragmentPhotoGalleryBinding;
+import org.maktab.photogallery.event.NotificationEvent;
 import org.maktab.photogallery.view.EndlessRecyclerViewScrollListener;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.viewmodel.PhotoGalleryViewModel;
@@ -29,7 +32,11 @@ import org.maktab.photogallery.viewmodel.PhotoGalleryViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.functions.Consumer;
+
 public class PhotoGalleryFragment extends VisibleFragment {
+
+    private PhotoGalleryApplication mPhotoGalleryApplication;
 
     private static final int SPAN_COUNT = 3;
     private FragmentPhotoGalleryBinding mBinding;

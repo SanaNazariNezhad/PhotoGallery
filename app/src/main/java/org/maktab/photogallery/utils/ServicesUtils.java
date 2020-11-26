@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import org.greenrobot.eventbus.EventBus;
+import org.maktab.photogallery.PhotoGalleryApplication;
 import org.maktab.photogallery.R;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.data.repository.PhotoRepository;
@@ -23,6 +24,7 @@ import java.util.List;
 public class ServicesUtils {
 
     private static final int NOTIFICATION_ID = 1;
+    private static PhotoGalleryApplication PhotoGalleryApplication;
 
     public static void pollAndShowNotification(Context context, String tag) {
         String query = QueryPreferences.getSearchQuery(context);
@@ -90,7 +92,12 @@ public class ServicesUtils {
                 .build();
 
         NotificationEvent notificationEvent = new NotificationEvent(NOTIFICATION_ID, notification);
-        EventBus.getDefault().post(notificationEvent);
+
+        PhotoGalleryApplication.bus().send(notificationEvent);
+
+
+       /* NotificationEvent notificationEvent = new NotificationEvent(NOTIFICATION_ID, notification);
+        EventBus.getDefault().post(notificationEvent);*/
 
     }
 

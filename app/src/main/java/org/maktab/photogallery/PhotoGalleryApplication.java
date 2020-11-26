@@ -1,9 +1,11 @@
 package org.maktab.photogallery;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -15,13 +17,18 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.maktab.photogallery.event.NotificationEvent;
+import org.maktab.photogallery.event.RxBus;
+
+import io.reactivex.functions.Consumer;
 
 public class PhotoGalleryApplication extends Application {
 
     private static final String TAG = "PhotoGalleryApplication";
     public static final String TAG_EVENT_BUS = "PGEventBus";
+    private RxBus bus;
+    private Context mContext = this;
 
-    @Override
+    /*@Override
     public void onCreate() {
         super.onCreate();
 
@@ -29,13 +36,13 @@ public class PhotoGalleryApplication extends Application {
         createNotificationChannel();
 
         EventBus.getDefault().register(this);
-    }
+    }*/
 
     @Override
     public void onTerminate() {
         super.onTerminate();
 
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
     }
 
     private void createNotificationChannel() {
@@ -57,7 +64,7 @@ public class PhotoGalleryApplication extends Application {
     }
 
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 1)
+    /*@Subscribe(threadMode = ThreadMode.POSTING, priority = 1)
     public void onNotificationEventListener(NotificationEvent notificationEvent) {
         String msg = "Application received the notification event";
         Log.d(TAG_EVENT_BUS, msg);
@@ -67,5 +74,34 @@ public class PhotoGalleryApplication extends Application {
         notificationManagerCompat.notify(
                 notificationEvent.getNotificationId(),
                 notificationEvent.getNotification());
+    }*/
+
+    @SuppressLint("CheckResult")
+    private void subcribe() {
+                bus()
+                .toObservable()
+                .subscribe(new Consumer<Object>() {
+                    @Override
+                    public void accept(Object object) throws Exception {
+                        if (object instanceof NotificationEvent) {
+                            NotificationEvent notificationEvent = (NotificationEvent) object;
+                            NotificationManagerCompat notificationManagerCompat =
+                                    NotificationManagerCompat.from(mContext);
+                            notificationManagerCompat.notify(
+                                    notificationEvent.getNotificationId(),
+                                    notificationEvent.getNotification());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        bus = new RxBus();
+    }
+
+    public RxBus bus() {
+        return bus;
     }
 }
