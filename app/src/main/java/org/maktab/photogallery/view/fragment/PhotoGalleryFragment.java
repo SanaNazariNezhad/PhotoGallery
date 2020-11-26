@@ -29,7 +29,7 @@ import org.maktab.photogallery.viewmodel.PhotoGalleryViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends VisibleFragment {
 
     private static final int SPAN_COUNT = 3;
     private FragmentPhotoGalleryBinding mBinding;
