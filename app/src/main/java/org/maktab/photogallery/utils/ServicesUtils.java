@@ -4,6 +4,7 @@ package org.maktab.photogallery.utils;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -19,6 +20,15 @@ import java.util.List;
 public class ServicesUtils {
 
     private static final int NOTIFICATION_ID = 1;
+
+    private static final String ACTION_PRIVATE_NOTIFICATION =
+            "org.maktab.photogallery.ACTION.PRIVATE_NOTIFICATION";
+    private static final String PERMISSION_PRIVATE_NOTIFICATION =
+            "org.maktab.photogallery.PRIVATE";
+
+    public static final String EXTRA_NOTIFICATION_ID = "org.maktab.photogallery.notificationId";
+    public static final String EXTRA_NOTIFICATION = "org.maktab.photogallery.notification";
+
 
     public static void pollAndShowNotification(Context context, String tag) {
         String query = QueryPreferences.getSearchQuery(context);
@@ -39,7 +49,8 @@ public class ServicesUtils {
         String lastSavedId = QueryPreferences.getLastId(context);
         if (!serverId.equals(lastSavedId)) {
             Log.d(tag, "show notification");
-            createAndShowNotification(context);
+            sendNotificationEvent(context);
+//            createAndShowNotification(context);
         } else {
             Log.d(tag, "do nothing");
         }
@@ -67,5 +78,28 @@ public class ServicesUtils {
                 NotificationManagerCompat.from(context);
         notificationManagerCompat.notify(NOTIFICATION_ID, notification);
     }
+
+    private static void sendNotificationEvent(Context context) {
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                PhotoGalleryActivity.newIntent(context),
+                0);
+
+        String channelId = context.getResources().getString(R.string.channel_id);
+        Notification notification = new NotificationCompat.Builder(context, channelId)
+                .setContentTitle(context.getResources().getString(R.string.new_pictures_title))
+                .setContentText(context.getResources().getString(R.string.new_pictures_text))
+                .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build();
+
+        Intent intent = new Intent(ACTION_PRIVATE_NOTIFICATION);
+        intent.putExtra(EXTRA_NOTIFICATION_ID, NOTIFICATION_ID);
+        intent.putExtra(EXTRA_NOTIFICATION, notification);
+        context.sendBroadcast(intent, PERMISSION_PRIVATE_NOTIFICATION);
+    }
+
 }
 
