@@ -38,12 +38,14 @@ import org.maktab.photogallery.R;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.viewmodel.LocatrViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LocatrFragment extends SupportMapFragment {
 
     public static final String TAG = "LocatrFragment";
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 0;
+    private static final int NUMBER_OF_IMAGES = 3;
 
     private LocatrViewModel mViewModel;
     private LatLng mItemLatLng;
@@ -73,6 +75,42 @@ public class LocatrFragment extends SupportMapFragment {
                 if (galleryItems == null || galleryItems.size() == 0)
                     return;
 
+                GalleryItem[] images = new GalleryItem[NUMBER_OF_IMAGES];
+                for (int i = 0; i < images.length; i++) {
+                    images[i] = galleryItems.get(i);
+                }
+                for (int i = 0; i < images.length; i++) {
+                    GalleryItem item = images[i];
+                    mItemLatLng = new LatLng(item.getLat(), item.getLng());
+                    Picasso.get()
+                            .load(item.getUrl())
+                            .placeholder(R.mipmap.ic_android_placeholder)
+                            .into(new Target() {
+                                @Override
+                                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                                    mItemBitmap = bitmap;
+                                    updateUI();
+                                }
+
+                                @Override
+                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                                }
+
+                                @Override
+                                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                                }
+                            });
+                }
+
+                updateUI();
+            }
+
+            /*public void onChanged(List<GalleryItem> galleryItems) {
+                if (galleryItems == null || galleryItems.size() == 0)
+                    return;
+
                 GalleryItem item = galleryItems.get(0);
                 mItemLatLng = new LatLng(item.getLat(), item.getLng());
                 Picasso.get()
@@ -97,7 +135,7 @@ public class LocatrFragment extends SupportMapFragment {
                         });
 
                 updateUI();
-            }
+            }*/
         });
 
         mViewModel.getMyLocation().observe(this, new Observer<Location>() {
