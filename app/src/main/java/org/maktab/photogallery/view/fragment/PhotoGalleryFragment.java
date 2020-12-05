@@ -147,6 +147,9 @@ public class PhotoGalleryFragment extends VisibleFragment {
                 mViewModel.togglePolling();
                 getActivity().invalidateOptionsMenu();
                 return true;
+            case R.id.menu_item_locatr:
+                mViewModel.startLocatr();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

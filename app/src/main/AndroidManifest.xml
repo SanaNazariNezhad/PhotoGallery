@@ -15,6 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PhotoGallery">
 
+        <activity android:name=".view.activity.LocatrActivity" />
         <activity
             android:name=".view.activity.PhotoPageActivity"
             android:configChanges="orientation|screenSize" />

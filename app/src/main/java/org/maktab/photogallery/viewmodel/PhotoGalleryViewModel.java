@@ -13,6 +13,7 @@ import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.data.remote.NetworkParams;
 import org.maktab.photogallery.data.repository.PhotoRepository;
 import org.maktab.photogallery.utils.QueryPreferences;
+import org.maktab.photogallery.view.activity.LocatrActivity;
 import org.maktab.photogallery.view.activity.PhotoPageActivity;
 import org.maktab.photogallery.work.PollWorker;
 
@@ -86,6 +87,13 @@ public class PhotoGalleryViewModel extends AndroidViewModel {
             return new ArrayList<>();
         }
     }
+
+    public void startLocatr() {
+        Intent intent = LocatrActivity.newIntent(getApplication());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getApplication().startActivity(intent);
+    }
+
 
     public void onImageClicked(int position) {
         GalleryItem item = getCurrentItems().get(position);
