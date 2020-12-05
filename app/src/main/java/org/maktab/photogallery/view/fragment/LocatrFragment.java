@@ -2,22 +2,16 @@ package org.maktab.photogallery.view.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -38,7 +32,6 @@ import org.maktab.photogallery.R;
 import org.maktab.photogallery.data.model.GalleryItem;
 import org.maktab.photogallery.viewmodel.LocatrViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LocatrFragment extends SupportMapFragment {
@@ -49,6 +42,8 @@ public class LocatrFragment extends SupportMapFragment {
 
     private LocatrViewModel mViewModel;
     private LatLng mItemLatLng;
+    private LatLng mEnd;
+    private LatLng mStart;
     private Bitmap mItemBitmap;
     private GoogleMap mMap;
 
@@ -150,9 +145,20 @@ public class LocatrFragment extends SupportMapFragment {
             public void onMapReady(GoogleMap googleMap) {
                 mMap = googleMap;
                 updateUI();
+//                listeners();
             }
         });
     }
+
+    /*private void listeners() {
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                mEnd = latLng;
+                mMap.addMarker(new MarkerOptions().position(mEnd).title("destination"));
+            }
+        });
+    }*/
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -167,8 +173,7 @@ public class LocatrFragment extends SupportMapFragment {
             case R.id.menu_item_location:
                 if (hasLocationAccess()) {
                     requestLocation();
-                }
-                else {
+                } else {
                     //request Location access permission
                     requestLocationAccessPermission();
                 }
@@ -177,7 +182,6 @@ public class LocatrFragment extends SupportMapFragment {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
 
     @Override
@@ -199,7 +203,7 @@ public class LocatrFragment extends SupportMapFragment {
                             "We do not have the location permission",
                             Toast.LENGTH_LONG).show();*/
 
-                    return;
+                return;
         }
     }
 
@@ -237,6 +241,7 @@ public class LocatrFragment extends SupportMapFragment {
             return;
 
         LatLng myLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        mStart = myLatLng;
         LatLngBounds latLngBounds = new LatLngBounds.Builder()
                 .include(myLatLng)
                 .include(mItemLatLng)
