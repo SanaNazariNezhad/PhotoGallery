@@ -16,5 +16,9 @@
     <string name="menu_item_locatr">Locatr</string>
     <string name="menu_item_location">Location</string>
     <string name="title_activity_maps">Map</string>
+    <string name="dialog_title">We need location Permission</string>
+    <string name="permission">our sample app needs location permission for suggesting image.</string>
+    <string name="permission_go_to">Go to:</string>
+    <string name="path_of_permission">Location--> App permission--> PhotoGallery--> Allow</string>
 
 </resources>

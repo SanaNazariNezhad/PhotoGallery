@@ -2,17 +2,22 @@ package org.maktab.photogallery.view.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -124,7 +129,8 @@ public class LocatrFragment extends SupportMapFragment {
             case R.id.menu_item_location:
                 if (hasLocationAccess()) {
                     requestLocation();
-                } else {
+                }
+                else {
                     //request Location access permission
                     requestLocationAccessPermission();
                 }
@@ -133,6 +139,8 @@ public class LocatrFragment extends SupportMapFragment {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(
@@ -147,11 +155,11 @@ public class LocatrFragment extends SupportMapFragment {
 
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     requestLocation();
-                else
+                /*else
                     Toast.makeText(
                             getContext(),
                             "We do not have the location permission",
-                            Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_LONG).show();*/
 
                     return;
         }
